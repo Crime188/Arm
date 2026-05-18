@@ -1,12 +1,13 @@
 import asyncio
-import websockets
 import json
 import pygame
 import time
+from minimum_interface import interface
 
 class LaptopSender:
     def __init__(self, server_uri):
         self.server_uri = server_uri
+        self.interface = interface(server_uri)
         pygame.init()
         pygame.joystick.init()
         
@@ -50,12 +51,12 @@ class LaptopSender:
         print(f"Connecting to Oracle Relay at {self.server_uri}...")
         while True:
             try:
-                async with websockets.connect(self.server_uri) as websocket:
-                    print("Connected! Streaming joystick data...")
-                    while True:
-                        angles = self.get_target_angles()
-                        await websocket.send(json.dumps({"angles": angles}))
-                        await asyncio.sleep(0.02) # 50Hz update rate
+                await self.interface.connect()
+                print("Connected! Streaming joystick data...")
+                while True:
+                    angles = self.get_target_angles()
+                    await self.interface.send_command(angles)
+                    await asyncio.sleep(0.02) # 50Hz update rate
             except Exception as e:
                 print(f"Connection lost ({e}). Retrying in 3s...")
                 await asyncio.sleep(3)
