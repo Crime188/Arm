@@ -1,2 +1,3 @@
 model/*
 credentials.json
+pi_software/__pycache__
