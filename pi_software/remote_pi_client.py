@@ -25,7 +25,7 @@ class RemotePiClient:
         except Exception as e:
             print(f"Warning: Could not open serial port {serial_port}: {e}")
             self.ser = None
-        self.old_angles = [115.0, 160.0, 0.0, 0.0] # assume we start at home position for safety
+        self.old_angles = [140, 145, 23, 90] # assume we start at home position (4 Servos)
         self.last_update_time = time.time()
 
 
@@ -88,7 +88,7 @@ class RemotePiClient:
         """Resource cleanup and homing."""
         if self.ser:
             print("Homing servos before exit...")
-            target_angles = [115, 160, 0, 0]
+            target_angles = [140, 145, 23, 90]
             steps = 25
             for i in range(1, steps + 1):
                 interp = [int(s + (t - s) * (i / steps)) for s, t in zip(self.old_angles, target_angles)]

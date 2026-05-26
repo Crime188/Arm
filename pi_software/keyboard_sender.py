@@ -15,9 +15,9 @@ class KeyboardSender:
         pygame.display.set_caption("Robot Keyboard Control")
         
         # State and logic
-        self.angles = [115.0, 160.0, 0.0, 0.0] 
+        self.angles = [140, 145, 23, 90]
         self.sensitivity = 1.0  # Degrees to move per update
-        self.limits = [180, 160, 180] # Limits for servos 0, 1, 2
+        self.limits = [180, 150, 180, 180] # Limits for all 4 servos
 
     def get_target_angles(self):
         """Processes keyboard input and returns calculated angles."""
@@ -25,9 +25,9 @@ class KeyboardSender:
         keys = pygame.key.get_pressed()
         # 1. Base (Index 0) using Left/Right Arrows
         if keys[pygame.K_LEFT]:
-            self.angles[0] = max(0.0, self.angles[0] - self.sensitivity)
-        if keys[pygame.K_RIGHT]:
             self.angles[0] = min(self.limits[0], self.angles[0] + self.sensitivity)
+        if keys[pygame.K_RIGHT]:
+            self.angles[0] = max(0.0, self.angles[0] - self.sensitivity)
 
         # 2. Secondary (Index 1) using Up/Down Arrows
         if keys[pygame.K_UP]:
@@ -41,11 +41,11 @@ class KeyboardSender:
         if keys[pygame.K_s]:
             self.angles[2] = max(0.0, self.angles[2] - self.sensitivity)
 
-        # 4. Stepper (Index 3) using A/D Keys
+        # 4. Servo 4 (Index 3) using A/D Keys
         if keys[pygame.K_a]:
-            self.angles[3] -= self.sensitivity
+            self.angles[3] = max(0.0, self.angles[3] - self.sensitivity)
         if keys[pygame.K_d]:
-            self.angles[3] += self.sensitivity
+            self.angles[3] = min(self.limits[3], self.angles[3] + self.sensitivity)
 
         return [int(a) for a in self.angles]
 
@@ -55,7 +55,7 @@ class KeyboardSender:
         print("  Base:      Left / Right Arrows")
         print("  Secondary: Up / Down Arrows")
         print("  Tool:      W / S keys")
-        print("  Stepper:   A / D keys")
+        print("  Servo 4:   A / D keys")
         
         while True:
             try:

@@ -15,7 +15,7 @@ class interface:
     async def send_command(self, command: list):
         """
         Sends a list of angles to the robot.
-        command: List of angles [base, secondary, tool, stepper]
+        command: List of angles [base, secondary, tool, Horizontal rotational]
         """
         if self.websocket:
             await self.websocket.send(json.dumps({"angles": command}))
