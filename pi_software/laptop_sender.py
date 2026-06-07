@@ -2,12 +2,12 @@ import asyncio
 import json
 import pygame
 import time
-from minimum_interface import interface
+from minimum_interface import Interface
 
 class LaptopSender:
     def __init__(self, server_uri):
         self.server_uri = server_uri
-        self.interface = interface(server_uri)
+        self.interface = Interface(server_uri)
         pygame.init()
         pygame.joystick.init()
         
@@ -124,7 +124,7 @@ if __name__ == "__main__":
         creds = json.load(f)
     ORACLE_IP = creds.get("server_ip")
     ORACLE_PORT = creds.get("server_port")
-    URI = f"ws://{ORACLE_IP}:{ORACLE_PORT}"
+    URI = f"wss://{ORACLE_IP}/arm/"
 
     sender = LaptopSender(URI)
     try:

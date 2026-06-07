@@ -1,28 +1,73 @@
 import json
 import websockets
 import asyncio
+import ssl
 
-class interface:
+
+class Interface:
     def __init__(self, server_uri):
-        """Initializes the interface with the relay server URI."""
+        """Initializes interface with relay server URI."""
         self.server_uri = server_uri
         self.websocket = None
 
     async def connect(self):
-        """Establishes a persistent websocket connection."""
-        self.websocket = await websockets.connect(self.server_uri)
+        """Establish persistent websocket connection with SSL fix."""
+
+        ssl_context = ssl.SSLContext()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+
+        while True:
+            try:
+                self.websocket = await websockets.connect(
+                    self.server_uri,
+                    ssl=ssl_context,
+                    ping_interval=20,
+                    ping_timeout=20
+                )
+
+                print("Connected to relay server.")
+                return
+
+            except Exception as e:
+                print(f"Connection failed: {e}. Retrying in 3 seconds...")
+                await asyncio.sleep(3)
 
     async def send_command(self, command: list):
         """
-        Sends a list of angles to the robot.
-        command: List of angles [base, secondary, tool, Horizontal rotational]
+        Sends angles to robot:
+        [base, secondary, tool, rotation]
         """
-        if self.websocket:
-            await self.websocket.send(json.dumps({"angles": command}))
+
+        if not self.websocket:
+            print("WebSocket not connected.")
+            return
+
+        try:
+            await self.websocket.send(
+                json.dumps({"angles": command})
+            )
+
+        except Exception as e:
+            print(f"Send failed: {e}")
+            self.websocket = None  # force reconnect
 
     async def receive_data(self):
-        """Receives and parses data from the robot via the relay."""
-        if self.websocket:
+        """Receives data safely from websocket."""
+
+        if not self.websocket:
+            return None
+
+        try:
             message = await self.websocket.recv()
             return json.loads(message)
-        return None
+
+        except Exception as e:
+            print(f"Receive failed: {e}")
+            self.websocket = None
+            return None
+
+    async def ensure_connection(self):
+        """Auto-reconnect helper."""
+        if not self.websocket:
+            await self.connect()

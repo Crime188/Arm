@@ -2,12 +2,12 @@ import asyncio
 import json
 import pygame
 import time
-from minimum_interface import interface
+from minimum_interface import Interface
 
 class KeyboardSender:
     def __init__(self, server_uri):
         self.server_uri = server_uri
-        self.interface = interface(server_uri)
+        self.interface = Interface(server_uri)
         pygame.init()
         
         # Pygame needs a window to capture keyboard events reliably
@@ -16,7 +16,7 @@ class KeyboardSender:
         
         # State and logic
         self.angles = [140, 145, 23, 90]
-        self.sensitivity = 1.0  # Degrees to move per update
+        self.sensitivity = .5  # Degrees to move per update
         self.limits = [180, 150, 180, 180] # Limits for all 4 servos
 
     def get_target_angles(self):
@@ -31,15 +31,15 @@ class KeyboardSender:
 
         # 2. Secondary (Index 1) using Up/Down Arrows
         if keys[pygame.K_UP]:
-            self.angles[1] = min(self.limits[1], self.angles[1] + self.sensitivity)
+            self.angles[1] = min(self.limits[1], self.angles[1] - self.sensitivity)
         if keys[pygame.K_DOWN]:
-            self.angles[1] = max(0.0, self.angles[1] - self.sensitivity)
+            self.angles[1] = max(0.0, self.angles[1] + self.sensitivity)
 
         # 3. Tool (Index 2) using W/S Keys
         if keys[pygame.K_w]:
-            self.angles[2] = min(self.limits[2], self.angles[2] + self.sensitivity)
+            self.angles[2] = min(self.limits[2], self.angles[2] - self.sensitivity)
         if keys[pygame.K_s]:
-            self.angles[2] = max(0.0, self.angles[2] - self.sensitivity)
+            self.angles[2] = max(0.0, self.angles[2] + self.sensitivity)
 
         # 4. Servo 4 (Index 3) using A/D Keys
         if keys[pygame.K_a]:
@@ -77,7 +77,7 @@ class KeyboardSender:
 if __name__ == "__main__":
     with open("credentials.json", 'r') as f:
         creds = json.load(f)
-    URI = f"ws://{creds.get('server_ip')}:{creds.get('server_port', 8080)}"
+    URI = f"wss://{creds.get('server_ip')}/arm/"
 
     sender = KeyboardSender(URI)
     try:
