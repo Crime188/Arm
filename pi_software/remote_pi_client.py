@@ -91,7 +91,7 @@ class RemotePiClient:
 
         print(f"Connecting to server at {self.server_uri}...")
 
-        # 🔥 IMPORTANT: allow self-signed SSL (your current setup)
+        #  IMPORTANT: allow self-signed SSL (your current setup)
         ssl_context = ssl.SSLContext()
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     SERVER_IP = creds.get("server_ip")
 
-    # 🔥 MUST include /oracle/
+    #  MUST include /oracle/
     URI = f"wss://{SERVER_IP}/arm/"
 
     client = RemotePiClient(server_uri=URI)
